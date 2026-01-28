@@ -25,7 +25,7 @@ mkdirSync(join(distDir, 'libcurl'), { recursive: true });
 // Copy public files
 console.log('Copying public files...');
 const publicDir = join(rootDir, 'public');
-const files = ['404.html', 'config.js', 'credits.html', 'favicon.ico', 'index.css', 'index.html', 'index.js', 'register-sw.js', 'search.js', 'sj.png', 'sw.js'];
+const files = ['404.html', 'config.js', 'credits.html', 'favicon.ico', 'index.css', 'index.html', 'index.js', 'register-sw.js', 'search.js', 'sj.png', 'sw.js', '_headers'];
 files.forEach(file => {
   const src = join(publicDir, file);
   const dest = join(distDir, file);
