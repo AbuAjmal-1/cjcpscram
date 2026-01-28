@@ -23,6 +23,20 @@ Scramjet has CAPTCHA support! Some of the popular websites that Scramjet support
 
 Ensure you are not hosting on a datacenter IP for CAPTCHAs to work reliably along with YouTube. Heavy amounts of traffic will make some sites NOT work on a single IP. Consider rotating IPs or routing through Wireguard using a project like <a href="https://github.com/whyvl/wireproxy">wireproxy</a>.
 
+## Netlify Deployment
+
+This project can be deployed to Netlify for static hosting. Note that the WebSocket proxy functionality (`/wisp/`) requires a separate backend server and will not work on Netlify's static hosting alone.
+
+To deploy to Netlify:
+
+1. Fork this repository
+2. Connect your repository to Netlify
+3. The build will automatically use the configuration in `netlify.toml`
+4. The build command `npm install && npm run build` will prepare the static files
+5. The `dist` directory will be published
+
+**Note:** For full proxy functionality, you'll need to configure an external WebSocket server and update the `wispUrl` in the frontend code to point to your WebSocket server endpoint.
+
 ## Setup / Usage
 
 You will need Node.js 16.x (and above) and Git installed; below is an example for Debian/Ubuntu setup.
