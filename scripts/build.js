@@ -25,6 +25,9 @@ mkdirSync(join(distDir, 'libcurl'), { recursive: true });
 // Copy all public files dynamically
 console.log('Copying public files...');
 const publicDir = join(rootDir, 'public');
+const criticalFiles = ['index.html', 'sw.js', 'register-sw.js', 'index.js'];
+let hasErrors = false;
+
 if (existsSync(publicDir)) {
   const publicFiles = readdirSync(publicDir);
   let copiedCount = 0;
@@ -37,9 +40,17 @@ if (existsSync(publicDir)) {
       console.log(`  ✓ Copied ${file}`);
     } catch (err) {
       console.error(`  ✗ Failed to copy ${file}:`, err.message);
+      if (criticalFiles.includes(file)) {
+        hasErrors = true;
+      }
     }
   });
   console.log(`Copied ${copiedCount} file(s) from public directory`);
+  
+  if (hasErrors) {
+    console.error('\nERROR: Failed to copy critical files from public directory');
+    process.exit(1);
+  }
 } else {
   console.error('ERROR: public directory not found!');
   process.exit(1);
