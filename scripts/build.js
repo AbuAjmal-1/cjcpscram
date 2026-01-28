@@ -1,4 +1,4 @@
-import { mkdirSync, cpSync, existsSync, rmSync } from 'fs';
+import { mkdirSync, cpSync, existsSync, rmSync, readdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -22,25 +22,39 @@ mkdirSync(join(distDir, 'scram'), { recursive: true });
 mkdirSync(join(distDir, 'baremux'), { recursive: true });
 mkdirSync(join(distDir, 'libcurl'), { recursive: true });
 
-// Copy public files
+// Copy all public files dynamically
 console.log('Copying public files...');
 const publicDir = join(rootDir, 'public');
-const files = ['404.html', 'config.js', 'credits.html', 'favicon.ico', 'index.css', 'index.html', 'index.js', 'register-sw.js', 'search.js', 'sj.png', 'sw.js', '_headers'];
-files.forEach(file => {
-  const src = join(publicDir, file);
-  const dest = join(distDir, file);
-  if (existsSync(src)) {
-    cpSync(src, dest);
-  }
-});
+if (existsSync(publicDir)) {
+  const publicFiles = readdirSync(publicDir);
+  let copiedCount = 0;
+  publicFiles.forEach(file => {
+    const src = join(publicDir, file);
+    const dest = join(distDir, file);
+    try {
+      cpSync(src, dest, { recursive: true });
+      copiedCount++;
+      console.log(`  ✓ Copied ${file}`);
+    } catch (err) {
+      console.error(`  ✗ Failed to copy ${file}:`, err.message);
+    }
+  });
+  console.log(`Copied ${copiedCount} file(s) from public directory`);
+} else {
+  console.error('ERROR: public directory not found!');
+  process.exit(1);
+}
 
 // Copy scramjet files
 console.log('Copying scramjet files...');
 const scramjetSrc = join(rootDir, 'node_modules', '@mercuryworkshop', 'scramjet', 'dist');
 if (existsSync(scramjetSrc)) {
   cpSync(scramjetSrc, join(distDir, 'scram'), { recursive: true });
+  console.log('  ✓ Scramjet files copied');
 } else {
-  console.warn('Warning: Scramjet files not found at', scramjetSrc);
+  console.error('ERROR: Scramjet files not found at', scramjetSrc);
+  console.error('The build cannot continue without scramjet. Please ensure dependencies are installed correctly.');
+  process.exit(1);
 }
 
 // Copy baremux files
@@ -48,8 +62,11 @@ console.log('Copying baremux files...');
 const baremuxSrc = join(rootDir, 'node_modules', '@mercuryworkshop', 'bare-mux', 'dist');
 if (existsSync(baremuxSrc)) {
   cpSync(baremuxSrc, join(distDir, 'baremux'), { recursive: true });
+  console.log('  ✓ Baremux files copied');
 } else {
-  console.warn('Warning: Baremux files not found at', baremuxSrc);
+  console.error('ERROR: Baremux files not found at', baremuxSrc);
+  console.error('The build cannot continue without baremux. Please ensure dependencies are installed correctly.');
+  process.exit(1);
 }
 
 // Copy libcurl-transport files
@@ -57,11 +74,14 @@ console.log('Copying libcurl-transport files...');
 const libcurlSrc = join(rootDir, 'node_modules', '@mercuryworkshop', 'libcurl-transport', 'dist');
 if (existsSync(libcurlSrc)) {
   cpSync(libcurlSrc, join(distDir, 'libcurl'), { recursive: true });
+  console.log('  ✓ Libcurl-transport files copied');
 } else {
-  console.warn('Warning: Libcurl-transport files not found at', libcurlSrc);
+  console.error('ERROR: Libcurl-transport files not found at', libcurlSrc);
+  console.error('The build cannot continue without libcurl-transport. Please ensure dependencies are installed correctly.');
+  process.exit(1);
 }
 
-console.log('Build complete! Files ready in dist/ directory');
+console.log('\n✅ Build complete! Files ready in dist/ directory');
 console.log('\nNote: This build creates a static version of the frontend.');
 console.log('The WebSocket proxy functionality (/wisp/) will not work on Netlify.');
 console.log('For full functionality, deploy to a platform that supports WebSocket servers.');
